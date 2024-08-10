@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\CategoryRequest;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -32,6 +33,14 @@ class CategoriesController extends Controller
                 'categories.*',
                 'parents.name as parent_name'
             ])
+//            ->select('categories.*')
+//            ->selectRaw('(SELECT COUNT(*) FROM products WHERE category_id = categories.id) as products_count')
+//            ->addselect(DB::raw('(SELECT COUNT(*) FROM products WHERE category_id = categories.id) as products_count)'))
+            ->withCount([
+                'products as products_number' => function($query) {
+                    $query->where('status', '=', 'active');
+                }
+            ])
             ->filter($request->query())
             ->orderBy('categories.name')
             ->Paginate(); //Return collection of objs
@@ -44,8 +53,9 @@ class CategoriesController extends Controller
      * @param int $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Category $category)
     {
+        return view('dashboard.categories.show' , ['category' => $category]);
     }
 
     /**

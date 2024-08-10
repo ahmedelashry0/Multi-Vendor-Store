@@ -19,7 +19,7 @@ class ProductFactory extends Factory
      */
     public function definition()
     {
-        $name = $this->faker->words(2, true);
+        $name = $this->faker->productName;
         return [
             'name' => $name,
             'slug' => Str::slug($name) . '-' . Str::random(5),
