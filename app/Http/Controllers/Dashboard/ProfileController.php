@@ -6,20 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Models\Profile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\Intl\Countries;
+use Symfony\Component\Intl\Languages;
 
 class ProfileController extends Controller
 {
     public function edit()
     {
         $user = Auth::user();
-        return view('dashboard.profile.edit' , ['user' => $user]);
+        return view('dashboard.profile.edit' , [
+            'user' => $user,
+            'countries' => Countries::getNames(),
+            'locals' => Languages::getNames(),
+            ]);
     }
 
     public function update(Request $request)
     {
         $request->validate([
-            'first-name' => 'required|string|max:255',
-            'last-name' => 'required|string|max:255',
+            'first_name' => 'required|string|max:255',
+            'last_name' => 'required|string|max:255',
             'birthday' => 'required|date|nullable|before:today',
             'gender' => 'in:male,female',
             'country' => 'required|string|size:2',
@@ -29,7 +35,7 @@ class ProfileController extends Controller
         //fill()-> if the model is empty it fills it if not empty it updates it
         $user->profile->fill($request->all())->save();
 
-        return redirect()-route('dashboard.profile.edit')->with('success', 'Profile updated');
+        return redirect()->route('dashboard.profile.edit')->with('success', 'Profile updated');
 
 //        $profile = $user->profile;
 //        if ($profile->first_name) {
