@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Front\CartController;
 use App\Http\Controllers\Front\HomeController;
 use App\Http\Controllers\Front\ProductsController;
 use App\Http\Controllers\ProfileController;
@@ -20,6 +21,8 @@ Route::get('/', [HomeController::class , 'index'])->name('home');
 
 Route::get('/products' , [ProductsController::class , 'index'])->name('products.index');
 Route::get('/products/{product:slug}' , [ProductsController::class , 'show'])->name('products.show');
+
+Route::resource('cart', CartController::class)->only(['index', 'store', 'update', 'destroy']);
 
 
 Route::middleware('auth')->group(function () {

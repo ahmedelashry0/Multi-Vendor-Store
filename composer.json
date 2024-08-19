@@ -10,7 +10,8 @@
         "laravel/framework": "^9.19",
         "laravel/sanctum": "^3.0",
         "laravel/tinker": "^2.7",
-        "symfony/intl": "^7.1"
+        "symfony/intl": "^7.1",
+        "ext-intl": "*"
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
