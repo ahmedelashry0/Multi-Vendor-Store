@@ -25,7 +25,6 @@
             }
         });
     });
-
     $('.add-to-cart').on('click', function(e) {
 
         $.ajax({
