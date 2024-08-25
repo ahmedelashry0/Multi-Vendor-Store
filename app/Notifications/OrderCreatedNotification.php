@@ -31,7 +31,7 @@ class OrderCreatedNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail' , 'database'];
 //        $channels = ['database'];
 //        if ($notifiable->notification_preferences['order_created']['sms'] ?? false) {
 //            $channels[] = 'vonage';
@@ -61,6 +61,17 @@ class OrderCreatedNotification extends Notification
             ->line("New order (# {$this->order->number}) has been created by $addr->name from {$addr->country_name}.")
             ->action('View Order', url('/dashboard'))
             ->line('Thank you for using our application!');
+    }
+
+    public function toDatabase($notifiable)
+    {
+        $addr = $this->order->billingAddress;
+        return [
+            'body' => "New order (# {$this->order->number}) has been created by $addr->name from {$addr->country_name}.",
+            'icon' => 'fas fa-file',
+            'url' => url('/dashboard'),
+            'order_id'=> $this->order->id,
+        ];
     }
 
 /**
