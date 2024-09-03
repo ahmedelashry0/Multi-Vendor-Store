@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'guard' => 'web',
+    'guard' => 'admin',
 
     /*
     |--------------------------------------------------------------------------
@@ -29,7 +29,7 @@ return [
     |
     */
 
-    'passwords' => 'users',
+    'passwords' => 'admins',
 
     /*
     |--------------------------------------------------------------------------
@@ -150,11 +150,7 @@ return [
         Features::emailVerification(),
         Features::updateProfileInformation(),
         Features::updatePasswords(),
-        Features::twoFactorAuthentication([
-            'confirm' => true,
-            'confirmPassword' => true,
-            // 'window' => 0,
-        ]),
+        Features::twoFactorAuthentication(),
     ],
 
 ];

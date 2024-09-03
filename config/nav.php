@@ -3,7 +3,7 @@
 return [
     [
         'icon' => 'nav-icon fas fa-tachometer-alt',
-        'route' => 'dashboard.dashboard',
+        'route' => 'dashboard.index',
         'title' => 'Dashboard',
         'active' => 'dashboard.dashboard',
     ],
