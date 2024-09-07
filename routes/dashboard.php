@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 
 Route::group([
-    'middleware' => ['auth'], // , 'auth.type:admin,super-admin
+    'middleware' => ['auth:admin,web'], // , 'auth.type:admin,super-admin
     'as' => 'dashboard.',
     'prefix' => 'dashboard'
 ], function () {

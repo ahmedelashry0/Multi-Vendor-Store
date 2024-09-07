@@ -33,10 +33,10 @@ class FortifyServiceProvider extends ServiceProvider
     {
         // Guard and home configuration based on request path
         if (request()->is('admin/*')) {
-            config()->set('fortify.guard', 'admin');
-            config()->set('fortify.passwords', 'admins');
             Config::set('auth.defaults.guard','admin');
-            dump(config()->get('fortify.guard'));
+            Config::set('auth.defaults.passwords','admins');
+            config()->set('fortify.guard', 'admin');
+            dump(config()->get('auth.defaults'),config()->get('fortify.guard'));
         }
 
         // Registering the action classes for Fortify
