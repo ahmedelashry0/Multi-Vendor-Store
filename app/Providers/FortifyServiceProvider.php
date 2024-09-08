@@ -6,58 +6,72 @@ use App\Actions\Fortify\CreateNewUser;
 use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use App\Models\Admin;
+use App\Models\User;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Fortify\Fortify;
+use Laravel\Fortify\Http\Responses\LoginResponse;
 
 class FortifyServiceProvider extends ServiceProvider
 {
-    /**
-     * Register any application services.
-     */
     public function register(): void
     {
-        // No request-dependent logic should go here.
-        if (request()->is('admin/*')) {
-            config()->set('fortify.prefix' , 'admin');
+        $request = request();
+
+        if ($request->is('admin/*')) {
+            config([
+                'fortify.guard' => 'admin',
+                'fortify.passwords' => 'admins',
+                'fortify.prefix' => 'admin',
+                'fortify.home' => '/dashboard',
+            ]);
         }
+//        $this->app->instance(LoginResponse::class, new class extends LoginResponse {
+//            public function toResponse($request)
+//            {
+//                return redirect('/');
+//            }
+//        });
     }
 
-    /**
-     * Bootstrap any application services.
-     */
     public function boot(): void
     {
-        // Guard and home configuration based on request path
-        if (request()->is('admin/*')) {
-            Config::set('auth.defaults.guard','admin');
-            Config::set('auth.defaults.passwords','admins');
-            config()->set('fortify.guard', 'admin');
-            dump(config()->get('auth.defaults'),config()->get('fortify.guard'));
-        }
-
-        // Registering the action classes for Fortify
         Fortify::createUsersUsing(CreateNewUser::class);
         Fortify::updateUserProfileInformationUsing(UpdateUserProfileInformation::class);
         Fortify::updateUserPasswordsUsing(UpdateUserPassword::class);
         Fortify::resetUserPasswordsUsing(ResetUserPassword::class);
 
-        // Rate limiter for login attempts
+        Fortify::authenticateUsing(function (Request $request) {
+            if ($request->is('admin/*')) {
+                $user = Admin::where('email', $request->email)->first();
+            } else {
+                $user = User::where('email', $request->email)->first();
+            }
+
+            if ($user && Hash::check($request->password, $user->password)) {
+                return $user;
+            }
+        });
+
         RateLimiter::for('login', function (Request $request) {
             return Limit::perMinute(5)->by($request->email . '|' . $request->ip());
         });
 
-        // Rate limiter for two-factor authentication
         RateLimiter::for('two-factor', function (Request $request) {
             return Limit::perMinute(5)->by($request->session()->get('login.id'));
         });
 
-        // Registering custom views for Fortify's routes
-        Fortify::registerView(fn() => view('auth.register'));
-        Fortify::loginView(fn() => view('auth.login'));
-        // Add more views like password reset, email verification as needed
+        Fortify::loginView(function () {
+            return request()->is('admin/*')
+                ? view('auth.admin_login')
+                : view('auth.login');
+        });
+
+        // Add other views as needed
     }
 }
